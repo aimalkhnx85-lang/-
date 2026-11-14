@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKL College - Proctorial Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:#f1f5f9;color:#0f172a}
+.topbar{background:#0f2a5a;color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+.topbar b{font-size:18px}.topbar b span{color:#f59e0b}
+.btn{background:#0f2a5a;color:#fff;border:0;padding:11px 18px;border-radius:10px;cursor:pointer;font-weight:700}
+.btn-gold{background:#f59e0b;color:#000}.btn-red{background:#dc2626}.btn-green{background:#16a34a}.btn-whats{background:#25D366;color:#fff}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:16px}
+input,select,textarea{width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;margin-top:6px;outline:none}
+label{font-size:13px;font-weight:700;margin-top:12px;display:block}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+.stat{text-align:center}.stat h2{font-size:28px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid #e2e8f0;text-align:left}th{background:#f8fafc}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#fef3c7;color:#92400e}
+.badge.paid{background:#dcfce7;color:#166534}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2a5a,#1e4a9a);padding:16px}
+.login-box{background:#fff;width:100%;max-width:420px;border-radius:20px;padding:28px;text-align:center}
+.logo{width:70px;height:70px;background:#0f2a5a;color:#f59e0b;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;margin:0 auto 12px;border:3px solid #f59e0b}
+.hidden{display:none!important}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:14px;overflow:auto}
+.slip{background:#fff;width:100%;max-width:500px;border-radius:16px;overflow:hidden}
+.slip-head{background:#0f2a5a;color:#fff;text-align:center;padding:20px}
+.slip-head .slogo{width:60px;height:60px;background:#fff;color:#0f2a5a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 8px;border:3px solid #f59e0b}
+.slip-body{padding:20px}.slip-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed #e2e8f0;font-size:14px}
+.slip-row b{text-align:right}
+.qr-box{display:flex;gap:14px;align-items:center;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;margin-top:14px}
+.qr-box img{width:100px;height:100px;border-radius:8px;background:#fff}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr}.topbar{flex-direction:column;gap:8px}}
+@media print{body *{visibility:hidden}.slip,.slip *{visibility:visible}.slip{position:absolute;left:0;top:0;width:100%;max-width:100%}.modal{background:#fff}}
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="login-wrap">
+  <div class="login-box">
+    <div class="logo">AKL</div>
+    <h2>AKL College</h2>
+    <p style="color:#64748b;margin:6px 0 18px">Proctorial Board Portal<br><small>Discipline • Respect • Responsibility</small></p>
+    <label style="text-align:left">Username</label><input id="lUser" placeholder="Enter username">
+    <label style="text-align:left">Password</label><input id="lPass" type="password" placeholder="Enter password">
+    <button class="btn btn-gold" style="width:100%;margin-top:18px" onclick="login()">Login to Portal →</button>
+    <p id="loginErr" style="color:red;font-size:13px;margin-top:10px"></p>
+    <p style="font-size:12px;color:#94a3b8;margin-top:16px">Only authorized Admin & Proctors can access.<br>© AKL Proctorial Board 2026</p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="topbar"><div><b>AKL <span>PROCTORIAL BOARD</span></b><div id="welcome" style="font-size:12px;opacity:.8"></div></div>
+  <div><button class="btn btn-gold" onclick="showPage('dashboard')">Dashboard</button> <button class="btn" style="background:#fff;color:#000" onclick="showPage('newFine')">+ New Fine</button> <button id="adminBtn" class="btn hidden" style="background:#fff;color:#000" onclick="showPage('admin')">Admin Panel</button> <button class="btn btn-red" onclick="logout()">Logout</button></div></div>
+
+  <div style="max-width:1100px;margin:20px auto;padding:0 14px">
+    <div id="page-dashboard">
+      <div class="grid g4">
+        <div class="card stat"><h2 id="tTotal">0</h2><p>Total Fines</p></div>
+        <div class="card stat"><h2 id="tToday">0</h2><p>Today's Fines</p></div>
+        <div class="card stat"><h2 id="tAmount">Rs 0</h2><p>Total Fine Amount</p></div>
+        <div class="card stat"><h2 id="tPending">0</h2><p>Pending / Unpaid</p></div>
+      </div>
+      <div class="card"><h3>Search & Filter Fines</h3><div class="grid g3"><input id="search" placeholder="Search by Name, Roll No, Proctor..." oninput="render()"><select id="fClass" onchange="render()"><option value="">All Classes</option></select><select id="fLoc" onchange="render()"><option value="">All Locations</option></select></div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-green" onclick="exportCSV()">⬇ Export Excel (CSV)</button><button class="btn" onclick="window.print()">🖨 Print Report</button></div></div>
+      <div class="card"><h3>All Fines Record</h3><div style="overflow:auto"><table><thead><tr><th>Date</th><th>Roll No</th><th>Name</th><th>Class</th><th>Violation</th><th>Location</th><th>Amount</th><th>Proctor</th><th>Status</th><th>Action</th></tr></thead><tbody id="fineTable"></tbody></table></div></div>
+    </div>
+
+    <div id="page-newFine" class="hidden">
+      <div class="card"><h2>Issue New Fine - Fine Slip</h2><p style="color:#64748b;font-size:13px">Phone number is optional. QR will be auto generated.</p>
+      <div class="grid g2">
+        <div><label>Roll Number *</label><input id="fRoll" placeholder="e.g. BS-ENG-123"></div>
+        <div><label>Student Full Name *</label><input id="fName" placeholder="e.g. Muhammad Ahmad"></div>
+        <div><label>Student WhatsApp / Mobile No <span style="color:#64748b;font-weight:400">(Optional)</span></label><input id="fPhone" placeholder="e.g. 0300 1234567 - Leave empty if not available"></div>
+        <div><label>Class / Program *</label><select id="fClass2"></select></div>
+        <div><label>Violation Type *</label><select id="fViolation"></select></div>
+        <div><label>Location *</label><select id="fLocation"></select></div>
+        <div><label>Fine Amount (Rs) *</label><input id="fAmount" type="number" placeholder="500"></div>
+        <div><label>Fine Slip No (Auto)</label><input id="fSlipNo" readonly style="background:#f8fafc"></div>
+      </div>
+      <label>Remarks / Details</label><textarea id="fRemarks" rows="2" placeholder="e.g. Without uniform, no ID card..."></textarea>
+      <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-gold" style="flex:1" onclick="saveFine()">Issue Fine & Show Slip</button><button class="btn" onclick="clearFine()">Clear</button></div>
+      <p id="fineMsg" style="margin-top:10px;font-weight:700"></p></div>
+    </div>
+
+    <div id="page-admin" class="hidden">
+      <div class="card"><h2>⚙ Admin Control Panel</h2><p style="color:#64748b">Only Admin can see this page.</p></div>
+      <div class="grid g2">
+        <div class="card"><h3>Create New Proctor Account</h3><label>Proctor Full Name</label><input id="pName" placeholder="e.g. Sir Bilal"><label>Username</label><input id="pUser" placeholder="e.g. bilal"><label>Password</label><input id="pPass" placeholder="e.g. 12345"><button class="btn btn-green" style="margin-top:12px;width:100%" onclick="addProctor()">Create Account</button><div id="proctorList" style="margin-top:14px"></div></div>
+        <div class="card"><h3>Manage System Data</h3><label>Add New Violation Type</label><div style="display:flex;gap:8px"><input id="newV"><button class="btn" onclick="addViolation()">Add</button></div><label>Add New Location</label><div style="display:flex;gap:8px"><input id="newL"><button class="btn" onclick="addLocation()">Add</button></div><label style="color:red">Danger Zone</label><button class="btn btn-red" style="width:100%;margin-top:8px" onclick="resetAll()">🗑 Reset All Fines Data</button><button class="btn" style="width:100%;margin-top:8px;background:#f1f5f9;color:#000" onclick="resetProctors()">Reset All Proctor Accounts</button></div>
+      </div>
+      <div class="card"><h3>Proctor Wise Report</h3><div id="proctorReport"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FINE SLIP MODAL WITH QR -->
+<div id="slipModal" class="modal hidden">
+  <div class="slip">
+    <div class="slip-head">
+      <div class="slogo">AKL</div>
+      <h3>AKL COLLEGE</h3><p style="font-size:12px;opacity:.8">PROCTORIAL BOARD - OFFICIAL FINE SLIP</p>
+      <p style="font-size:12px;margin-top:6px;background:#f59e0b;color:#000;display:inline-block;padding:4px 12px;border-radius:20px;font-weight:700" id="slipNoShow">Slip No: AKL-001</p>
+    </div>
+    <div class="slip-body" id="slipBody"></div>
+    <div style="padding:0 20px 20px">
+      <div class="qr-box">
+        <img id="qrImg" src="" alt="QR Code">
+        <div><b style="font-size:14px">Scan to Verify Fine</b><p style="font-size:12px;color:#64748b;margin-top:4px">Scan this QR with any camera to verify this slip is original from AKL Proctorial Board.<br><span id="qrText" style="font-weight:700;color:#0f2a5a"></span></p></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:13px"><span>Student Sign: ___________</span><span>Proctor Sign: ___________</span></div>
+      <p style="font-size:11px;color:#64748b;text-align:center;margin-top:14px">Please pay fine within 3 days at Accounts Office. Keep this slip safe.<br>AKL Proctorial Board | Discipline is the key to success.</p>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn" style="flex:1" onclick="window.print()">🖨 Print</button>
+        <button class="btn btn-whats" style="flex:1" onclick="sendWhatsApp()">💬 WhatsApp</button>
+        <button class="btn" style="flex:1;background:#f1f5f9;color:#000" onclick="downloadQR()">⬇ QR</button>
+        <button class="btn btn-red" style="flex:1" onclick="closeSlip()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let DB = JSON.parse(localStorage.getItem('akl_db')||'null') || {
+ users:[{name:'Admin',user:'admin',pass:'admin123',role:'admin'},{name:'Sir Proctor',user:'proctor1',pass:'proctor123',role:'proctor'}],
+ fines:[], violations:['No Uniform','No ID Card','Mobile Phone Use','Late Coming','Misbehavior','Smoking / Vaping','Haircut / Appearance','Discipline Violation','Other'], locations:['Main Gate','Library','BS Block','Parking','Canteen','Ground','Classroom','Other'], classes:['BS English','BS Computer Science','BS Zoology','BS Botany','BS Chemistry','BS Islamiat','BS Economics','BS Physics']
+};
+let currentUser=null, lastFine=null;
+function save(){localStorage.setItem('akl_db',JSON.stringify(DB))}
+function genSlipNo(){return 'AKL-'+String(DB.fines.length+1).padStart(4,'0')}
+function login(){let u=lUser.value.trim(),p=lPass.value.trim();let f=DB.users.find(x=>x.user==u&&x.pass==p);if(!f){loginErr.innerText='Invalid Username or Password!';return}currentUser=f;loginPage.classList.add('hidden');app.classList.remove('hidden');welcome.innerText='Welcome, '+f.name+' | Role: '+f.role.toUpperCase();if(f.role=='admin')adminBtn.classList.remove('hidden');else adminBtn.classList.add('hidden');showPage('dashboard');render();fSlipNo.value=genSlipNo()}
+function logout(){location.reload()}
+function showPage(p){['dashboard','newFine','admin'].forEach(x=>document.getElementById('page-'+x).classList.add('hidden'));document.getElementById('page-'+p).classList.remove('hidden');if(p=='admin')renderAdmin();if(p=='newFine')fSlipNo.value=genSlipNo()}
+function fillSelects(){fClass2.innerHTML=DB.classes.map(c=>`<option>${c}</option>`).join('');fViolation.innerHTML=DB.violations.map(v=>`<option>${v}</option>`).join('');fLocation.innerHTML=DB.locations.map(l=>`<option>${l}</option>`).join('');fClass.innerHTML='<option value="">All Classes</option>'+DB.classes.map(c=>`<option>${c}</option>`).join('');fLoc.innerHTML='<option value="">All Locations</option>'+DB.locations.map(l=>`<option>${l}</option>`).join('')}
+function saveFine(){if(!fRoll.value||!fName.value||!fAmount.value){fineMsg.style.color='red';fineMsg.innerText='Please fill Roll No, Name and Amount! Phone is optional.';return}
+lastFine={slipNo:fSlipNo.value,date:new Date().toLocaleDateString('en-GB'),time:new Date().toLocaleTimeString(),roll:fRoll.value,name:fName.value,phone:fPhone.value||'',cls:fClass2.value,viol:fViolation.value,loc:fLocation.value,amt:+fAmount.value,proctor:currentUser.name,remarks:fRemarks.value||'No remarks',status:'Pending'};
+DB.fines.unshift(lastFine);save();showSlip(lastFine);clearFine(false);render()}
+function showSlip(f){slipNoShow.innerText='Slip No: '+f.slipNo;
+let qrData = `AKL COLLEGE - VERIFIED FINE | Slip: ${f.slipNo} | Student: ${f.name} | Roll: ${f.roll} | Class: ${f.cls} | Violation: ${f.viol} | Location: ${f.loc} | Amount: Rs ${f.amt} | Proctor: ${f.proctor} | Date: ${f.date}`;
+qrImg.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='+encodeURIComponent(qrData);
+qrText.innerText=f.slipNo+' | '+f.roll;
+slipBody.innerHTML=`<div class="slip-row"><span>Date & Time</span><b>${f.date} - ${f.time}</b></div><div class="slip-row"><span>Student Name</span><b>${f.name}</b></div><div class="slip-row"><span>Roll Number</span><b>${f.roll}</b></div><div class="slip-row"><span>Class</span><b>${f.cls}</b></div><div class="slip-row"><span>Violation</span><b style="color:#dc2626">${f.viol}</b></div><div class="slip-row"><span>Location</span><b>${f.loc}</b></div><div class="slip-row"><span>Phone</span><b>${f.phone||'Not Provided'}</b></div><div class="slip-row"><span>Remarks</span><b>${f.remarks}</b></div><div class="slip-row"><span>Issued By Proctor</span><b>${f.proctor}</b></div><div class="slip-row" style="font-size:18px"><span>Total Fine</span><b style="color:#0f2a5a">Rs ${f.amt}</b></div>`;slipModal.classList.remove('hidden')}
+function closeSlip(){slipModal.classList.add('hidden');fSlipNo.value=genSlipNo()}
+function downloadQR(){if(!lastFine)return;let a=document.createElement('a');a.href=qrImg.src;a.download=lastFine.slipNo+'-QR.png';a.target='_blank';a.click()}
+function sendWhatsApp(){if(!lastFine)return;let phone=(lastFine.phone||'').replace(/\D/g,'');if(!phone){phone=prompt('Student number not saved. Enter WhatsApp Number (e.g. 923001234567) or Cancel to skip:');if(!phone)return}if(phone.startsWith('0'))phone='92'+phone.slice(1);let msg=`*AKL COLLEGE - PROCTORIAL BOARD*%0A%0A*FINE SLIP*%0ASlip No: ${lastFine.slipNo}%0ADate: ${lastFine.date}%0AStudent: ${lastFine.name}%0ARoll No: ${lastFine.roll}%0AClass: ${lastFine.cls}%0AViolation: ${lastFine.viol}%0ALocation: ${lastFine.loc}%0A*Fine Amount: Rs ${lastFine.amt}*%0AProctor: ${lastFine.proctor}%0A%0APlease pay within 3 days at Accounts Office. QR Code on slip for verification.`;window.open('https://wa.me/'+phone+'?text='+msg,'_blank')}
+function clearFine(clearMsg=true){['fRoll','fName','fPhone','fAmount','fRemarks'].forEach(id=>document.getElementById(id).value='');if(clearMsg)fineMsg.innerText='';fSlipNo.value=genSlipNo()}
+function render(){fillSelects();let s=search.value.toLowerCase(),fc=fClass.value,fl=fLoc.value;let list=DB.fines.filter(f=>(f.name.toLowerCase().includes(s)||f.roll.toLowerCase().includes(s)||f.proctor.toLowerCase().includes(s))&&(!fc||f.cls==fc)&&(!fl||f.loc==fl));tTotal.innerText=DB.fines.length;tToday.innerText=DB.fines.filter(f=>f.date==new Date().toLocaleDateString('en-GB')).length;tAmount.innerText='Rs '+DB.fines.reduce((a,b)=>a+b.amt,0).toLocaleString();tPending.innerText=DB.fines.filter(f=>f.status=='Pending').length;fineTable.innerHTML=list.map((f,i)=>{let idx=DB.fines.indexOf(f);return `<tr><td>${f.date}</td><td><b>${f.roll}</b></td><td>${f.name}</td><td>${f.cls}</td><td><span class="badge">${f.viol}</span></td><td>${f.loc}</td><td><b>Rs ${f.amt}</b></td><td>${f.proctor}</td><td><span class="badge ${f.status=='Paid'?'paid':'pending'}">${f.status}</span></td><td>${currentUser.role=='admin'?`<button onclick="togglePaid(${idx})">Paid</button> <button onclick="viewSlip(${idx})">Slip+QR</button> <button onclick="delFine(${idx})" style="color:red">Del</button>`:`<button onclick="viewSlip(${idx})">Slip+QR</button>`}</td></tr>`}).join('')||'<tr><td colspan=10 style="text-align:center;padding:20px">No fines found.</td></tr>'}
+function viewSlip(i){lastFine=DB.fines[i];showSlip(lastFine)}
+function togglePaid(i){DB.fines[i].status=DB.fines[i].status=='Paid'?'Pending':'Paid';save();render()}
+function delFine(i){if(confirm('Delete this fine?')){DB.fines.splice(i,1);save();render()}}
+function addProctor(){if(!pName.value||!pUser.value||!pPass.value)return alert('Fill all fields');DB.users.push({name:pName.value,user:pUser.value,pass:pPass.value,role:'proctor'});save();renderAdmin();alert('Proctor Account Created!')}
+function renderAdmin(){let pros=DB.users.filter(u=>u.role=='proctor');proctorList.innerHTML='<b>All Proctors:</b><br>'+pros.map(p=>`• ${p.name} - @${p.user} - Pass: ${p.pass} <button onclick="delProctor('${p.user}')" style="color:red;border:0;background:none;cursor:pointer">Delete</button>`).join('<br>');proctorReport.innerHTML=pros.map(p=>{let fs=DB.fines.filter(f=>f.proctor==p.name);return `<div style="padding:8px;border-bottom:1px solid #eee;display:flex;justify-content:space-between"><span>${p.name}</span><b>${fs.length} Fines - Rs ${fs.reduce((a,b)=>a+b.amt,0)}</b></div>`}).join('')}
+function delProctor(u){DB.users=DB.users.filter(x=>x.user!=u);save();renderAdmin()}
+function addViolation(){if(newV.value){DB.violations.push(newV.value);save();fillSelects();newV.value='';alert('Violation Added')}} 
+function addLocation(){if(newL.value){DB.locations.push(newL.value);save();fillSelects();newL.value='';alert('Location Added')}}
+function resetAll(){if(confirm('Are you sure? All fines will be deleted!')){DB.fines=[];save();render();alert('All Data Reset Done')}}
+function resetProctors(){if(confirm('Delete all proctor accounts?')){DB.users=DB.users.filter(u=>u.role=='admin');save();renderAdmin();alert('Proctors Reset Done')}}
+function exportCSV(){let csv='Slip,Date,Roll,Name,Class,Violation,Location,Amount,Proctor,Status\n'+DB.fines.map(f=>`${f.slipNo},${f.date},${f.roll},${f.name},${f.cls},${f.viol},${f.loc},${f.amt},${f.proctor},${f.status}`).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='AKL_Fines.csv';a.click()}
+fillSelects();
+</script>
+</body>
+</html>
